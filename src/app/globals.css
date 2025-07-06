@@ -1,0 +1,341 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    font-family: 'Courier Prime', monospace !important; /* Changed to Courier Prime with !important */
+    font-size: 0.95rem; /* Slightly smaller font size */
+    background-color: #f0f2f5; /* Light gray background */
+    color: #333; /* Darker text for contrast */
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000; /* Ensure it stays on top */
+    border-bottom: 5px solid #28a745; /* Increased thickness of green line */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Added subtle shadow to header */
+}
+
+.header-title {
+    font-size: 1.75rem; /* Increased font size for header title */
+    font-weight: 700; /* Make it bold */
+}
+
+.main-content-wrapper {
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    background-color: #fff; /* White background for the main content area */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 1rem; /* Add margin around the main content area */
+    margin-top: calc(56px + 1rem); /* Adjusted margin-top to account only for fixed header */
+}
+
+.sidebar {
+    background-color: #f8f9fa; /* Lighter sidebar background */
+    padding: 1.5rem 0;
+    border-right: 1px solid #e0e0e0; /* Lighter border */
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    padding: 0 1.5rem;
+    margin-bottom: 1.5rem;
+    color: #212529; /* Darker text for header */
+}
+
+.watchlist {
+    list-style: none;
+    padding: 0;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.watchlist-item {
+    padding: 0.5rem 1.5rem; /* Reduced vertical padding */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out; /* Smooth transition for 3D effect */
+    border-bottom: 1px solid #eee; /* Very light border */
+    color: #495057; /* Slightly muted text */
+    background-color: #ffffff; /* White background for each item */
+    margin: 0.25rem 0.5rem; /* Add some margin to separate items */
+    border-radius: 5px; /* Slightly rounded corners */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Subtle initial shadow */
+    font-size: 0.85rem; /* Set a consistent font size for the entire item */
+}
+
+.watchlist-item:hover {
+    background-color: #e9ecef; /* Light hover effect */
+    color: #212529;
+    transform: translateY(-2px); /* Lift effect */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* More pronounced shadow on hover */
+}
+
+.watchlist-item.active {
+    background-color: #e0e0e0; /* Active item background */
+    color: #007bff; /* Primary color for active text */
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Active state shadow */
+}
+
+.watchlist-item .symbol {
+    font-weight: bold;
+    /* font-size: 0.85rem; Removed specific font-size, now inherits from parent */
+    display: flex;
+    align-items: center;
+}
+
+.watchlist-item .price-details {
+    text-align: right;
+    /* font-size: 0.75rem; Removed specific font-size, now inherits from parent */
+    white-space: nowrap; /* Prevent wrapping */
+}
+
+.watchlist-item .company-logo-small {
+    width: 20px; /* Slightly smaller logo */
+    height: 20px; /* Slightly smaller logo */
+    border-radius: 50%;
+    margin-right: 8px; /* Adjusted margin */
+    object-fit: contain;
+    background-color: #fff;
+    border: 1px solid #eee;
+}
+
+.watchlist-item .btn-outline-danger {
+    font-size: 0.75rem; /* Explicitly set font size for the delete button */
+    padding: 0.1rem 0.4rem; /* Adjust padding for smaller button */
+}
+
+.main-content {
+    padding: 2rem;
+    overflow-y: auto;
+    background-color: #fff; /* White background for main content */
+}
+
+.company-header {
+    margin-bottom: 1.5rem;
+    color: #212529; /* Darker text for header */
+    display: flex;
+    align-items: center;
+}
+
+.company-header .company-logo-large {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin-right: 15px;
+    object-fit: contain;
+    background-color: #fff;
+    border: 1px solid #eee;
+}
+
+.company-details {
+    background-color: #ffffff; /* Changed to white for 3D effect */
+    padding: 1.5rem; /* Adjusted padding */
+    border-radius: 8px;
+    border: none; /* Removed border */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* More pronounced shadow */
+    margin-bottom: 2rem; /* Space before news section */
+}
+
+.detail-item-card {
+    background-color: #f8f9fa; /* Lighter background for each detail item */
+    padding: 0.75rem; /* Reduced padding inside each detail card */
+    border-radius: 6px;
+    border: 1px solid #e0e0e0; /* Subtle border for individual cards */
+    margin-bottom: 0.75rem; /* Reduced spacing between detail cards */
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.02);
+}
+
+.detail-item-card p {
+    margin-bottom: 0.1rem; /* Even smaller margin for text within card */
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.detail-item-card h5 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.news-section {
+    background-color: #ffffff; /* Changed to white for 3D effect */
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: none; /* Removed border */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* More pronounced shadow */
+    margin-bottom: 2rem; /* Space before video news section */
+}
+
+.news-item {
+    margin-bottom: 0.75rem; /* Reduced margin */
+    padding-bottom: 0.75rem; /* Reduced padding */
+    border-bottom: 1px solid #eee;
+}
+
+.news-item h6 {
+    font-size: 0.9rem; /* Slightly smaller font size */
+    font-weight: 500;
+    margin-bottom: 0.15rem; /* Reduced margin */
+}
+
+.news-item small {
+    color: #6c757d;
+    font-size: 0.75rem; /* Smaller font size for date/source */
+}
+
+.video-news-section {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.video-news-item {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.video-news-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.video-news-item h6 {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.video-news-item small {
+    color: #6c757d;
+}
+
+.text-success {
+    color: #28a745 !important; /* Bootstrap success green */
+}
+
+.text-danger {
+    color: #dc3545 !important; /* Bootstrap danger red */
+}
+
+.text-muted {
+    color: #6c757d !important; /* Bootstrap muted text */
+}
+
+.bg-primary {
+    background-color: #007bff !important;
+}
+
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+.text-white {
+    color: #fff !important;
+}
+
+.shadow-sm {
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075)!important;
+}
+
+.py-3 {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+}
+
+.mt-auto {
+    margin-top: auto !important;
+}
+
+.container-fluid {
+    width: 100%;
+    padding-right: var(--bs-gutter-x, .75rem);
+    padding-left: var(--bs-gutter-x, .75rem);
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.d-flex {
+    display: flex !important;
+}
+
+.justify-content-between {
+    justify-content: space-between !important;
+}
+
+.align-items-center {
+    align-items: center !important;
+}
+
+.mb-0 {
+    margin-bottom: 0 !important;
+}
+
+.ms-3 {
+    margin-left: 1rem !important;
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+.ticker-input-blue-border.form-control {
+    border-color: #007bff; /* Blue border color */
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25); /* Optional: Add a subtle blue glow on focus */
+}
+
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%; /* Take full height of parent */
+    width: 100%; /* Take full width of parent */
+}
+
+/* Bootstrap spinner styles (ensure bootstrap.min.css is loaded) */
+.spinner-border {
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    vertical-align: -0.125em;
+    border: 0.25em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    -webkit-animation: .75s linear infinite spinner-border;
+    animation: .75s linear infinite spinner-border;
+}
+
+@keyframes spinner-border {
+    to {
+        transform: rotate(360deg);
+    }
+}
