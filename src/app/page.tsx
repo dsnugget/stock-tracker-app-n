@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -19,14 +18,14 @@ export default function Home() {
     const [nextEarningsDate, setNextEarningsDate] = useState<string>('N/A'); // Always N/A for free tier
     const [suggestions, setSuggestions] = useState<any[]>([]);
     const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(true); // New loading state
+    const [loading, setLoading] = useState<boolean>(true); // Correctly declared loading state
     const inputRef = useRef<HTMLInputElement>(null);
 
     // Function to fetch all necessary data for a symbol
     const fetchStockData = async (symbol: string) => {
         try {
             const quote: any = await getQuote(symbol);
-            const profile: any = await getCompanyProfile(symbol);
+            const profile: any = await await getCompanyProfile(symbol);
             // Check if quote data is valid (e.g., not empty or error)
             if (!quote || quote.c === 0) {
                 throw new Error(`No data found for ${symbol}`);
@@ -373,12 +372,23 @@ export default function Home() {
                                 {news.length > 0 && (
                                     <div className="news-section mt-4">
                                         <h3 className="mb-4">Latest News</h3>
-                                        {news.map((article, index) => (
-                                            <div key={index} className="news-item">
-                                                <h6><a href={article.url} target="_blank" rel="noopener noreferrer">{article.headline}</a></h6>
-                                                <small>{new Date(article.datetime * 1000).toLocaleString()} {new Intl.DateTimeFormat(undefined, { timeZoneName: 'short' }).formatToParts(new Date(article.datetime * 1000)).find(part => part.type === 'timeZoneName')?.value} - {article.source}</small>
-                                            </div>
-                                        ))}
+                                        {news.map((article, index) => {
+                                            // Check if image exists and is not a known Finnhub generic placeholder
+                                            const isGenericImage = article.image && (
+                                                article.image.includes('finnhub.io/api/news/image?url=') || 
+                                                article.image.includes('https://static.finnhub.io/assets/news/default_image.jpg') // Example of another potential generic URL
+                                            );
+                                            
+                                            return (
+                                                <div key={index} className="news-item d-flex align-items-center">
+                                                    {article.image && !isGenericImage && <img src={article.image} alt="News Thumbnail" className="news-thumbnail me-3" />}
+                                                    <div>
+                                                        <h6><a href={article.url} target="_blank" rel="noopener noreferrer">{article.headline}</a></h6>
+                                                        <small>{new Date(article.datetime * 1000).toLocaleString()} {new Intl.DateTimeFormat(undefined, { timeZoneName: 'short' }).formatToParts(new Date(article.datetime * 1000)).find(part => part.type === 'timeZoneName')?.value} - {article.source}</small>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </>
