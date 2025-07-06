@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
 
 @tailwind base;
@@ -28,13 +29,18 @@ header {
     left: 0;
     width: 100%;
     z-index: 1000; /* Ensure it stays on top */
-    border-bottom: 5px solid #28a745; /* Increased thickness of green line */
+    border-bottom: 8px solid #28a745; /* Increased thickness of green line */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Added subtle shadow to header */
 }
 
 .header-title {
     font-size: 1.75rem; /* Increased font size for header title */
     font-weight: 700; /* Make it bold */
+}
+
+.market-status-indicator {
+    font-size: 0.9rem;
+    font-weight: bold;
 }
 
 .main-content-wrapper {

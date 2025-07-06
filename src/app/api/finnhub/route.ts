@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import { DefaultApi, ApiClient } from 'finnhub';
 
@@ -15,6 +14,7 @@ export async function GET(request: Request) {
   const query = searchParams.get('query');
   const from = searchParams.get('from');
   const to = searchParams.get('to');
+  const exchange = searchParams.get('exchange');
 
   try {
     let data;
@@ -47,6 +47,14 @@ export async function GET(request: Request) {
         if (!query) throw new Error('Query is required for symbolSearch.');
         data = await new Promise((resolve, reject) => {
           finnhubClient.symbolSearch(query, (error, res) => {
+            if (error) reject(error); else resolve(res);
+          });
+        });
+        break;
+      case 'marketStatus':
+        if (!exchange) throw new Error('Exchange is required for marketStatus.');
+        data = await new Promise((resolve, reject) => {
+          finnhubClient.marketStatus(exchange, (error, res) => {
             if (error) reject(error); else resolve(res);
           });
         });

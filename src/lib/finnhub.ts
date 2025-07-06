@@ -1,3 +1,4 @@
+
 // This file now acts as a client for our Next.js API route
 
 const FINNHUB_API_BASE_URL = '/api/finnhub';
@@ -33,4 +34,8 @@ export const getCompanyNews = (symbol: string, from: string, to: string) => {
 
 export const symbolSearch = (query: string) => {
     return fetchData('symbolSearch', { query });
+};
+
+export const getMarketStatus = (exchange: string) => {
+    return fetchData('marketStatus', { exchange });
 };
