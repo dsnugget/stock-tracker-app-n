@@ -157,6 +157,24 @@ header {
     border: 1px solid #eee;
 }
 
+.company-header .current-price-header {
+    font-size: 1.2rem; /* Smaller font size for price in header */
+    font-weight: bold;
+    margin-left: 1rem; /* Space between ticker and price */
+    background-color: #000; /* Black background */
+    color: #fff; /* White font */
+    padding: 0.2rem 0.5rem;
+    border-radius: 5px;
+}
+
+.company-header .current-price-header .text-success {
+    color: #28a745 !important; /* Ensure green is visible on black */
+}
+
+.company-header .current-price-header .text-danger {
+    color: #dc3545 !important; /* Ensure red is visible on black */
+}
+
 .company-details {
     background-color: #ffffff; /* Changed to white for 3D effect */
     padding: 1.5rem; /* Adjusted padding */

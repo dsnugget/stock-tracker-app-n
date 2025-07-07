@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -25,7 +26,7 @@ export default function Home() {
     const fetchStockData = async (symbol: string) => {
         try {
             const quote: any = await getQuote(symbol);
-            const profile: any = await await getCompanyProfile(symbol);
+            const profile: any = await getCompanyProfile(symbol);
             // Check if quote data is valid (e.g., not empty or error)
             if (!quote || quote.c === 0) {
                 throw new Error(`No data found for ${symbol}`);
@@ -218,6 +219,35 @@ export default function Home() {
         }
     };
 
+    const handleRefreshSelectedStockPrice = async () => {
+        if (selectedStock && selectedStock.symbol) {
+            setError(null); // Clear previous errors
+            setLoading(true); // Show loading spinner during refresh
+            try {
+                const quote: any = await getQuote(selectedStock.symbol);
+                console.log(`Refresh Quote Response for ${selectedStock.symbol}:`, quote); // Log the response
+                if (typeof quote.c === 'number') {
+                    setSelectedStock(prev => ({
+                        ...prev,
+                        c: quote.c,
+                        dp: quote.dp,
+                        h: quote.h, // Update high
+                        l: quote.l, // Update low
+                        o: quote.o, // Update open
+                        pc: quote.pc // Update previous close
+                    }));
+                } else {
+                    setError(`Failed to get updated price for ${selectedStock.symbol}.`);
+                }
+            } catch (refreshError) {
+                console.error(`Error refreshing price for ${selectedStock.symbol}:`, refreshError);
+                setError(`Failed to refresh price for ${selectedStock.symbol}.`);
+            } finally {
+                setLoading(false); // Hide loading spinner after refresh attempt
+            }
+        }
+    };
+
     return (
         <>
             <Head>
@@ -266,9 +296,9 @@ export default function Home() {
                                 {stock.logo && <img src={stock.logo} alt={`${stock.symbol} Logo`} className="company-logo-small" />}
                                 <span className="symbol me-2">{stock.symbol}</span>
                                 <span className="price-details me-2">
-                                    {stock.price !== 'N/A' ? `$${stock.price.toFixed(2)}` : 'N/A'}
+                                    {typeof stock.price === 'number' ? `$${stock.price.toFixed(2)}` : 'N/A'}
                                 </span>
-                                {stock.change !== 0 && (
+                                {typeof stock.change === 'number' && (
                                     <span className={stock.change > 0 ? 'text-success' : 'text-danger'}>{stock.change.toFixed(2)}%</span>
                                 )}
                             </div>
@@ -298,9 +328,29 @@ export default function Home() {
                     selectedStock ? (
                         !selectedStock.error ? (
                             <>
-                                <div className="company-header">
+                                <div className="company-header d-flex align-items-center">
                                     {selectedStock.logo && <img src={selectedStock.logo} alt={`${selectedStock.symbol} Logo`} className="company-logo-large" />}
-                                    <h1 className="display-5">{selectedStock.name} ({selectedStock.ticker})</h1>
+                                    <h1 className="display-5 mb-0 me-3">{selectedStock.name} ({selectedStock.ticker})</h1>
+                                    {typeof selectedStock.c === 'number' && (
+                                        <span className="current-price-header bg-black px-2 py-1 rounded me-2 text-white">
+                                            ${selectedStock.c.toFixed(2)}
+                                        </span>
+                                    )}
+                                    {typeof selectedStock.dp === 'number' && (
+                                        <span className={`${selectedStock.dp > 0 ? 'text-success' : 'text-danger'} bg-black px-2 py-1 rounded fw-bold`}>
+                                            {selectedStock.dp.toFixed(2)}%
+                                        </span>
+                                    )}
+                                    <button 
+                                        className="btn btn-sm btn-outline-secondary ms-3 refresh-btn"
+                                        onClick={handleRefreshSelectedStockPrice}
+                                        title="Refresh current stock price"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
+                                            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
+                                        </svg>
+                                    </button>
                                 </div>
                                 <div className="company-details">
                                     <h3 className="mb-4">Key Details</h3>
@@ -320,25 +370,25 @@ export default function Home() {
                                         <div className="col-6 col-md-3">
                                             <div className="detail-item-card">
                                                 <p className="text-muted mb-1">High</p>
-                                                <h5>${selectedStock.h?.toFixed(2)}</h5>
+                                                <h5>{typeof selectedStock.h === 'number' ? `$${selectedStock.h.toFixed(2)}` : 'N/A'}</h5>
                                             </div>
                                         </div>
                                         <div className="col-6 col-md-3">
                                             <div className="detail-item-card">
                                                 <p className="text-muted mb-1">Low</p>
-                                                <h5>${selectedStock.l?.toFixed(2)}</h5>
+                                                <h5>{typeof selectedStock.l === 'number' ? `$${selectedStock.l.toFixed(2)}` : 'N/A'}</h5>
                                             </div>
                                         </div>
                                         <div className="col-6 col-md-3">
                                             <div className="detail-item-card">
                                                 <p className="text-muted mb-1">Open</p>
-                                                <h5>${selectedStock.o?.toFixed(2)}</h5>
+                                                <h5>{typeof selectedStock.o === 'number' ? `$${selectedStock.o.toFixed(2)}` : 'N/A'}</h5>
                                             </div>
                                         </div>
                                         <div className="col-6 col-md-3">
                                             <div className="detail-item-card">
                                                 <p className="text-muted mb-1">Previous Close</p>
-                                                <h5>${selectedStock.pc?.toFixed(2)}</h5>
+                                                <h5>{typeof selectedStock.pc === 'number' ? `$${selectedStock.pc.toFixed(2)}` : 'N/A'}</h5>
                                             </div>
                                         </div>
                                         <div className="col-6 col-md-3">
@@ -372,23 +422,17 @@ export default function Home() {
                                 {news.length > 0 && (
                                     <div className="news-section mt-4">
                                         <h3 className="mb-4">Latest News</h3>
-                                        {news.map((article, index) => {
-                                            // Check if image exists and is not a known Finnhub generic placeholder
-                                            const isGenericImage = article.image && (
-                                                article.image.includes('finnhub.io/api/news/image?url=') || 
-                                                article.image.includes('https://static.finnhub.io/assets/news/default_image.jpg') // Example of another potential generic URL
-                                            );
-                                            
-                                            return (
+                                        {news.map((article, index) => (
+                                            article.image && ( // Conditional rendering based on image availability
                                                 <div key={index} className="news-item d-flex align-items-center">
-                                                    {article.image && !isGenericImage && <img src={article.image} alt="News Thumbnail" className="news-thumbnail me-3" />}
+                                                    {article.image && <img src={article.image} alt="News Thumbnail" className="news-thumbnail me-3" />}
                                                     <div>
                                                         <h6><a href={article.url} target="_blank" rel="noopener noreferrer">{article.headline}</a></h6>
                                                         <small>{new Date(article.datetime * 1000).toLocaleString()} {new Intl.DateTimeFormat(undefined, { timeZoneName: 'short' }).formatToParts(new Date(article.datetime * 1000)).find(part => part.type === 'timeZoneName')?.value} - {article.source}</small>
                                                     </div>
                                                 </div>
-                                            );
-                                        })}
+                                            )
+                                        ))}
                                     </div>
                                 )}
                             </>

@@ -1,17 +1,14 @@
 
-import type { Metadata } from "next";
+'use client';
+
+import React from 'react';
 import "./globals.css";
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 
-export const metadata: Metadata = {
-  title: "Stock Ticker Tracker",
-  description: "A minimalist stock tracking app.",
-  icons: { 
-    icon: '/favicon.svg',
-  }
-};
+// Metadata is typically static, so it's defined outside the component
+// This is now in src/app/metadata.ts
 
 export default function RootLayout({
   children,
