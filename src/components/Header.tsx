@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { getMarketStatus } from '../lib/finnhub';
+import Clock from './Clock';
 
 const Header = () => {
   const [marketStatus, setMarketStatus] = useState('Loading...');
@@ -32,8 +33,11 @@ const Header = () => {
     <header className="bg-primary text-white py-3 shadow-sm">
       <div className="container-fluid d-flex justify-content-between align-items-center">
         <h4 className="mb-0 ms-3 header-title">Stock Tracker Pro</h4>
-        <div className="market-status-indicator me-3 bg-white px-2 py-1 rounded fw-bold">
-          <span className="text-black">Market:</span> <span className={statusClass}>{marketStatus}</span>
+        <div className="d-flex flex-column align-items-end me-3">
+          <div className="market-status-indicator bg-white px-2 py-1 rounded fw-bold">
+            <span className="text-black">Market:</span> <span className={statusClass}>{marketStatus}</span>
+          </div>
+          <Clock />
         </div>
       </div>
     </header>
