@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, nextSession) => {
+      async (event, nextSession) => {
         const nextToken = nextSession?.access_token ?? null;
         const nextUserId = nextSession?.user?.id ?? null;
         const currentUserId = user?.id ?? null;
@@ -41,6 +41,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Only update context if something meaningful changed (prevents refetches on focus)
         const tokenChanged = nextToken !== lastAccessTokenRef.current;
         const userChanged = nextUserId !== currentUserId;
+        
+        // Ignore periodic token refresh to prevent downstream effects (Vercel focus/resume)
+        if (event === 'TOKEN_REFRESHED' || event === 'TOKEN_REFRESH') {
+          return;
+        }
+
         if (!tokenChanged && !userChanged) {
           return;
         }
@@ -77,7 +83,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    // Prefer local sign out to avoid server errors when session is already invalid (e.g., Vercel focus/resume)
+    const { error } = await supabase.auth.signOut({ scope: 'local' });
+    if (error && error.message && !/session_not_found/i.test(error.message)) {
+      // Try global as a fallback, but ignore session_not_found
+      const { error: globalErr } = await supabase.auth.signOut({ scope: 'global' });
+      if (globalErr && !/session_not_found/i.test(globalErr.message)) {
+        console.error('Sign out error:', globalErr);
+      }
+    }
+    // Clear local auth state regardless
+    setSession(null);
+    setUser(null);
+    lastAccessTokenRef.current = null;
+    if (typeof window !== 'undefined') {
+      try {
+        // Clear any one-time flags (e.g., watchlist loaded)
+        Object.keys(sessionStorage).forEach((k) => {
+          if (k.startsWith('watchlist_loaded_')) sessionStorage.removeItem(k);
+        });
+      } catch {}
+    }
   };
 
   const resetPassword = async (email: string) => {
