@@ -38,8 +38,10 @@ export default function Dashboard() {
     }
   };
 
+  const hasLoadedRef = useRef(false);
+
   useEffect(() => {
-    if (!user) return;
+    if (!user || hasLoadedRef.current) return;
     const loadWatchlist = async () => {
       setLoading(true);
       let storedSymbols: string[] = await getOrCreateUserWatchlist(user.id);
@@ -67,6 +69,7 @@ export default function Dashboard() {
         setLoading(false);
       }
     };
+    hasLoadedRef.current = true;
     loadWatchlist();
   }, [user]);
 
