@@ -41,7 +41,17 @@ export default function Dashboard() {
   const hasLoadedRef = useRef(false);
 
   useEffect(() => {
-    if (!user || hasLoadedRef.current) return;
+    if (!user) return;
+
+    // Persist a flag across remounts/tab switches in production (Vercel)
+    const storageKey = `watchlist_loaded_${user.id}`;
+    const alreadyLoaded = typeof window !== 'undefined' ? sessionStorage.getItem(storageKey) === '1' : false;
+
+    if (hasLoadedRef.current || alreadyLoaded) {
+      hasLoadedRef.current = true;
+      return; // prevent re-fetch on remount/refocus
+    }
+
     const loadWatchlist = async () => {
       setLoading(true);
       let storedSymbols: string[] = await getOrCreateUserWatchlist(user.id);
@@ -70,6 +80,7 @@ export default function Dashboard() {
       }
     };
     hasLoadedRef.current = true;
+    if (typeof window !== 'undefined') sessionStorage.setItem(storageKey, '1');
     loadWatchlist();
   }, [user]);
 
