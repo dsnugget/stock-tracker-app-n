@@ -476,6 +476,22 @@ body {
     flex-grow: 1;
 }
 
+.watchlist-empty {
+    color: rgba(255,255,255,0.7);
+    font-size: 0.9rem;
+    padding: 0.75rem 0.75rem 0 0.75rem;
+}
+
+.empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 320px;
+    color: #ffffff;
+    font-size: 1rem;
+    text-align: center;
+}
+
 .watchlist-item {
     padding: 0.5rem 0.75rem; /* tighter */
     display: flex;

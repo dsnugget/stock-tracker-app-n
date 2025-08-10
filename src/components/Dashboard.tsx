@@ -265,7 +265,11 @@ export default function Dashboard() {
               <div className="text-center text-danger">Failed to load data for {selectedStock.symbol}.</div>
             )
           ) : (
-            <div className="text-center text-muted">Select a stock to view details.</div>
+            watchlist.length === 0 ? (
+              <div className="empty-state"><div>No stocks yet. Add a stock to see the watchlist.</div></div>
+            ) : (
+              <div className="text-center text-muted">Select a stock to view details.</div>
+            )
           )
         )}
       </main>
