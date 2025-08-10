@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 
@@ -20,20 +20,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const lastAccessTokenRef = useRef<string | null>(null);
 
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      lastAccessTokenRef.current = session?.access_token ?? null;
       setLoading(false);
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
+      async (_event, nextSession) => {
+        const nextToken = nextSession?.access_token ?? null;
+        const nextUserId = nextSession?.user?.id ?? null;
+        const currentUserId = user?.id ?? null;
+
+        // Only update context if something meaningful changed (prevents refetches on focus)
+        const tokenChanged = nextToken !== lastAccessTokenRef.current;
+        const userChanged = nextUserId !== currentUserId;
+        if (!tokenChanged && !userChanged) {
+          return;
+        }
+
+        lastAccessTokenRef.current = nextToken;
+        setSession(nextSession);
+        setUser(nextSession?.user ?? null);
         setLoading(false);
       }
     );
