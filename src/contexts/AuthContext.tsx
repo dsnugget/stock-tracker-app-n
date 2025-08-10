@@ -42,11 +42,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const tokenChanged = nextToken !== lastAccessTokenRef.current;
         const userChanged = nextUserId !== currentUserId;
         
-        // Ignore periodic token refresh to prevent downstream effects (Vercel focus/resume)
-        if (event === 'TOKEN_REFRESHED' || event === 'TOKEN_REFRESH') {
-          return;
-        }
-
         if (!tokenChanged && !userChanged) {
           return;
         }
