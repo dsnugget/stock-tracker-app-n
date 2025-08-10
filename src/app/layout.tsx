@@ -2,9 +2,11 @@
 'use client';
 
 import React from 'react';
+import { usePathname } from 'next/navigation';
 import "./globals.css";
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { AuthProvider } from '../contexts/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 
 // Metadata is typically static, so it's defined outside the component
@@ -15,16 +17,24 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  const isAuthRoute = pathname?.startsWith('/auth/');
   return (
     <html lang="en">
       <body>
-        <div className="app-container">
-          <Header />
-          <div className="main-content-wrapper">
-            {children}
+        <AuthProvider>
+          <div className="app-container">
+            <Header />
+            {isAuthRoute ? (
+              <main>{children}</main>
+            ) : (
+              <div className="main-content-wrapper">
+                {children}
+              </div>
+            )}
+            <Footer />
           </div>
-          <Footer />
-        </div>
+        </AuthProvider>
       </body>
     </html>
   );

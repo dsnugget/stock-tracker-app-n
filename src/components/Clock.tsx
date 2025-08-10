@@ -17,9 +17,9 @@ const Clock = () => {
   const timeZone = time.toLocaleTimeString('en-us',{timeZoneName:'short'}).split(' ')[2]
 
   return (
-    <div className="text-white">
-      <span className="fw-bold">{time.toLocaleTimeString()}</span>
-      <span className="ms-2 fw-bold">{timeZone}</span>
+    <div className="modern-clock">
+      <span className="time-display">{time.toLocaleTimeString()}</span>
+      <span className="timezone-display">{timeZone}</span>
     </div>
   );
 };

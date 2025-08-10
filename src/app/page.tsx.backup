@@ -1,19 +1,15 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '../contexts/AuthContext';
-import ProtectedRoute from '../components/ProtectedRoute';
 import { getQuote, getCompanyProfile, getCompanyNews, symbolSearch } from '../lib/finnhub';
-import { getOrCreateUserWatchlist, addSymbolToWatchlist, removeSymbolFromWatchlist } from '../lib/watchlist';
 import { formatMarketCap } from '../utils/formatters';
 
 // Default watchlist symbols
 const defaultWatchlistSymbols = ['AAPL', 'MSFT', 'NVDA', 'AMZN', 'META', 'AVGO', 'GOOGL', 'GOOG', 'TSLA', 'COST', 'WMT', 'PLTR'];
 
-function Dashboard() {
-    const { user } = useAuth();
+export default function Home() {
     const [watchlist, setWatchlist] = useState<any[]>([]);
     const [selectedStock, setSelectedStock] = useState<any>(null);
     const [newTicker, setNewTicker] = useState<string>('');
@@ -44,15 +40,21 @@ function Dashboard() {
         }
     };
 
-    // Load watchlist from Supabase on initial render
+    // Load watchlist from localStorage on initial render
     useEffect(() => {
-        if (!user) return;
         const loadWatchlist = async () => {
             setLoading(true); // Set loading to true at the start
-            let storedSymbols: string[] = await getOrCreateUserWatchlist(user.id);
-            // If brand new user with no symbols, keep empty (no defaults)
+            let storedSymbols: string[] = [];
+            if (typeof window !== 'undefined') {
+                const storedWatchlist = localStorage.getItem('stockWatchlist');
+                if (storedWatchlist) {
+                    storedSymbols = JSON.parse(storedWatchlist);
+                } else {
+                    storedSymbols = defaultWatchlistSymbols;
+                }
+            }
 
-            const fetchedWatchlistData: any[] = [];
+            const fetchedWatchlistData = [];
             for (const symbol of storedSymbols) {
                 try {
                     const quote: any = await getQuote(symbol);
@@ -72,7 +74,7 @@ function Dashboard() {
 
             // Sort the watchlist data alphabetically by symbol
             fetchedWatchlistData.sort((a, b) => a.symbol.localeCompare(b.symbol));
-            setWatchlist(fetchedWatchlistData.sort((a,b)=>a.symbol.localeCompare(b.symbol)));
+            setWatchlist(fetchedWatchlistData);
 
             // Select the first stock if available
             if (fetchedWatchlistData.length > 0) {
@@ -84,9 +86,15 @@ function Dashboard() {
         };
 
         loadWatchlist();
-    }, [user]);
+    }, []);
 
-    // No localStorage persistence; persisted in Supabase
+    // Save watchlist to localStorage whenever it changes
+    useEffect(() => {
+        if (typeof window !== 'undefined' && watchlist.length > 0) {
+            const symbolsToStore = watchlist.map(stock => stock.symbol);
+            localStorage.setItem('stockWatchlist', JSON.stringify(symbolsToStore));
+        }
+    }, [watchlist]);
 
     const handleSelectStock = async (symbol: string) => {
         setError(null); // Clear previous errors
@@ -146,13 +154,9 @@ function Dashboard() {
         const stockData = await fetchStockData(symbol);
         if (!stockData.error) {
             setWatchlist(prevWatchlist => {
-                const updatedList = [...prevWatchlist, { symbol, price: stockData.c, change: stockData.dp, active: false, logo: stockData.logo }]
-                  .sort((a, b) => a.symbol.localeCompare(b.symbol));
-                return updatedList; // Sorted alphabetically
+                const updatedList = [...prevWatchlist, { symbol, price: stockData.c, change: stockData.dp, active: false, logo: stockData.logo }];
+                return updatedList.sort((a, b) => a.symbol.localeCompare(b.symbol)); // Sort after adding new stock
             });
-            if (user) {
-                try { await addSymbolToWatchlist(user.id, symbol); } catch (e) { console.error('Failed to persist watchlist add', e); }
-            }
             setNewTicker(''); // Clear input
             handleSelectStock(symbol); // Select the newly added stock
             setShowSuggestions(false); // Hide suggestions after adding
@@ -194,14 +198,10 @@ function Dashboard() {
 
     const handleRemoveTicker = (symbolToRemove: string) => {
         setWatchlist(prevWatchlist => {
-            const updatedWatchlist = prevWatchlist
-                .filter(stock => stock.symbol !== symbolToRemove)
-                .sort((a, b) => a.symbol.localeCompare(b.symbol));
+            const updatedWatchlist = prevWatchlist.filter(stock => stock.symbol !== symbolToRemove);
+            // No need to sort here, as the other updates will trigger a sort
             return updatedWatchlist;
         });
-        if (user) {
-            removeSymbolFromWatchlist(user.id, symbolToRemove).catch((e)=>console.error('Failed to persist watchlist remove', e));
-        }
 
         // If the removed stock was selected, select the first in the new list or clear selection
         if (selectedStock && selectedStock.symbol === symbolToRemove) {
@@ -252,7 +252,7 @@ function Dashboard() {
     return (
         <>
             <Head>
-                <title>Stock Tracker Pro - Dashboard</title>
+                <title>Advanced Stock Tracker</title>
             </Head>
             <button 
                 className="mobile-sidebar-toggle d-md-none"
@@ -264,11 +264,12 @@ function Dashboard() {
             </button>
             <aside className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
                 <div className="sidebar-header">
+                    <h2 className="h5">My Watchlist</h2>
                     <div className="input-group mt-3 position-relative">
                         <input 
                             type="text" 
                             className="form-control form-control-sm ticker-input-blue-border" 
-                            placeholder="Add Ticker Sybmol" 
+                            placeholder="Add Ticker..." 
                             value={newTicker}
                             onChange={handleInputChange}
                             onKeyPress={(e) => {
@@ -355,7 +356,7 @@ function Dashboard() {
                                         title="Refresh current stock price"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                                            <path fillRule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
+                                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
                                             <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
                                         </svg>
                                     </button>
@@ -411,26 +412,35 @@ function Dashboard() {
                                                 <h5>{selectedStock.exchange === 'NASDAQ NMS - GLOBAL MARKET' ? 'NASDAQ' : selectedStock.exchange}</h5>
                                             </div>
                                         </div>
-                                        {/* Removed IPO Date and Currency as requested */}
+                                        <div className="col-6 col-md-3">
+                                            <div className="detail-item-card">
+                                                <p className="text-muted mb-1">IPO Date</p>
+                                                <h5>{selectedStock.ipo?.slice(0, 10)}</h5>
+                                            </div>
+                                        </div>
+                                        <div className="col-6 col-md-3">
+                                            <div className="detail-item-card">
+                                                <p className="text-muted mb-1">Currency</p>
+                                                <h5>{selectedStock.currency}</h5>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 {/* News Section */}
                                 {news.length > 0 && (
                                     <div className="news-section mt-4">
-                                        <h3 className="mb-3">Latest News</h3>
+                                        <h3 className="mb-4">Latest News</h3>
                                         {news.map((article, index) => (
-                                            <div key={index} className="news-item">
-                                                <h6>
-                                                    <a href={article.url} target="_blank" rel="noopener noreferrer">
-                                                        {article.headline}
-                                                    </a>
-                                                </h6>
-                                                <small>
-                                                    {new Date(article.datetime * 1000).toLocaleString()} {new Intl.DateTimeFormat(undefined, { timeZoneName: 'short' }).formatToParts(new Date(article.datetime * 1000)).find(part => part.type === 'timeZoneName')?.value}
-                                                    {' — Source: '} {article.source}
-                                                </small>
-                                            </div>
+                                            article.image && ( // Conditional rendering based on image availability
+                                                <div key={index} className="news-item d-flex align-items-center">
+                                                    {article.image && <img src={article.image} alt="News Thumbnail" className="news-thumbnail me-3" />}
+                                                    <div>
+                                                        <h6><a href={article.url} target="_blank" rel="noopener noreferrer">{article.headline}</a></h6>
+                                                        <small>{new Date(article.datetime * 1000).toLocaleString()} {new Intl.DateTimeFormat(undefined, { timeZoneName: 'short' }).formatToParts(new Date(article.datetime * 1000)).find(part => part.type === 'timeZoneName')?.value} - {article.source}</small>
+                                                    </div>
+                                                </div>
+                                            )
                                         ))}
                                     </div>
                                 )}
@@ -444,13 +454,5 @@ function Dashboard() {
                 )}
             </main>
         </>
-    );
-}
-
-export default function Home() {
-    return (
-        <ProtectedRoute>
-            <Dashboard />
-        </ProtectedRoute>
     );
 }
