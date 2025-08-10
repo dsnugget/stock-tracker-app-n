@@ -1,7 +1,8 @@
 
 'use client';
 
-import { createChart, IChartApi, ISeriesApi, UTCTimestamp } from 'lightweight-charts';
+import type { IChartApi, ISeriesApi, UTCTimestamp } from 'lightweight-charts';
+import { createChart } from 'lightweight-charts';
 import { useEffect, useRef } from 'react';
 
 interface StockChartProps {

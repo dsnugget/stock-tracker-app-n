@@ -17,6 +17,7 @@
     "@supabase/supabase-js": "^2.54.0",
     "bootstrap": "^5.3.7",
     "finnhub": "^1.2.19",
+    "lightweight-charts": "^4.1.0",
     "next": "14.2.3",
     "react": "^18",
     "react-dom": "^18"
