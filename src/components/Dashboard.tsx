@@ -47,7 +47,8 @@ export default function Dashboard() {
     const storageKey = `watchlist_loaded_${user.id}`;
     const alreadyLoaded = typeof window !== 'undefined' ? sessionStorage.getItem(storageKey) === '1' : false;
 
-    if (hasLoadedRef.current || alreadyLoaded) {
+    // If we think it's loaded but state is empty (e.g., dev refresh), allow one load
+    if (hasLoadedRef.current || (alreadyLoaded && watchlist.length > 0)) {
       hasLoadedRef.current = true;
       return; // prevent re-fetch on remount/refocus
     }
@@ -82,7 +83,7 @@ export default function Dashboard() {
     hasLoadedRef.current = true;
     if (typeof window !== 'undefined') sessionStorage.setItem(storageKey, '1');
     loadWatchlist();
-  }, [user]);
+  }, [user, watchlist.length]);
 
   const handleSelectStock = async (symbol: string) => {
     setError(null);
